@@ -3,9 +3,9 @@ from tkinter import *
 from tkcalendar import Calendar
 from tkinter import messagebox
 import cx_Oracle
+#Omda
 
-
-db=cx_Oracle.connect(user="hr", password="hr", dsn="localhost:1521/xe")
+db=cx_Oracle.connect(user="ART", password="password", dsn="localhost:1521/xe")
 
 
 
@@ -80,11 +80,11 @@ def delete():
 
             c = condition.get()
             if(p == p1):
-                c="\'"+c+"\'"  # "string"
+                c="\'"+c+"\'"
 
 
             cur = db.cursor()
-            cur.execute('DELETE FROM '+T+ ' WHERE '+p+' ='+c) # 'Delete from "Artist" where "username"='a1' '
+            cur.execute('DELETE FROM '+T+ ' WHERE '+p+' ='+c)
             db.commit()
 
 
@@ -142,7 +142,7 @@ def view():
 
         cur = db.cursor()
         cur.execute('select * from '+T )
-        var = cur.fetchall() #return list of tuples 
+        var = cur.fetchall() #return list of tuples
         if(len(var) > 0):
             totalcolums = len(var[0])
             totalrows = len(var)
@@ -206,9 +206,7 @@ def Register():
     #Birthday
     tk.Label(formWindow, text="Birthday", width=20, fg='black',
             font=('Arial', 16, 'bold')).place(x=0, y=300)
-    cal = Calendar(formWindow, selectmode = 'day',
-               year = 2022, month = 5,
-               day = 1)
+    cal = Calendar(formWindow, selectmode = 'day')
 
     cal.place(x=250, y=300)
 
@@ -264,7 +262,7 @@ def artist(uname,fname,lname,phone,email):
     u=uname.get()
     f=fname.get()
     l=lname.get()
-    p=phone.get()
+    p=int(phone.get())
     e=email.get()
 
 
@@ -435,7 +433,7 @@ def customer(uname, fname, lname, phone, email, date):
     u=uname.get()
     f=fname.get()
     l=lname.get()
-    p=phone.get()
+    p=int(phone.get())
     e=email.get()
     print("Date: "+date)
     print(type(date))
@@ -457,10 +455,13 @@ def customer(uname, fname, lname, phone, email, date):
                     width=10, fg='black',
                     font=('Arial', 16, 'bold'), command=lambda:exhibitionsPayment(u)).place(x=450, y=100)
 
+    tk.Button(customer_Window, text="likes",
+                    width=10, fg='black',
+                    font=('Arial', 16, 'bold'), command=lambda:likes(u)).place(x=450, y=200)
+
     tk.Button(customer_Window, text="Review",
                     width=10, fg='black',
-                    font=('Arial', 16, 'bold'), command=lambda:reviews(u)).place(x=450, y=200)
-
+                    font=('Arial', 16, 'bold'), command=lambda:reviews(u)).place(x=450, y=300)
 
     tk.Button(customer_Window, text="submit",
                     width=10, fg='black',
@@ -620,7 +621,7 @@ def customer(uname, fname, lname, phone, email, date):
         tk.Label(formWindow, text="Review", width=20, fg='black',
                 font=('Arial', 16, 'bold')).place(x=0, y=50)
         review = tk.StringVar(formWindow)
-        tk.Entry(formWindow,textvariable=review,width=50, fg='black',
+        tk.Entry(formWindow,textvariable=review,width=20, fg='black',
                 font=('Arial', 16, 'bold')).place(x=250, y=50)
 
 
@@ -639,6 +640,42 @@ def customer(uname, fname, lname, phone, email, date):
             cur = db.cursor()
             cur.execute('insert into "reviews" ("username", "artID", "review") VALUES(:1, :2, :3)', (u, i, r))
             db.commit()
+
+
+        formWindow.mainloop()
+
+    def likes(u):
+        formWindow = tk.Tk()
+        formWindow.title("likes")
+        formWindow.geometry("1100x950")
+
+
+        #artID
+        tk.Label(formWindow, text="Art ID", width=20, fg='black',
+                font=('Arial', 16, 'bold')).place(x=0, y=0)
+        artID = tk.StringVar(formWindow)
+        tk.Entry(formWindow,textvariable=artID,width=20, fg='black',
+                font=('Arial', 16, 'bold')).place(x=250, y=0)
+
+        #like
+        var = IntVar(formWindow)
+
+        tk.Radiobutton(formWindow, text="like",indicatoron=0, variable=var, value=1).place(x=250, y=200)
+
+
+
+
+        tk.Button(formWindow, text="submit",
+                        width=10, fg='black',
+                        font=('Arial', 16, 'bold'), command=lambda: [submit_like(artID, u, var), confirm(), formWindow.destroy()]).place(x=350, y=400)
+
+        def submit_like(artID, u, var):
+
+            i=artID.get()
+            if(var.get() == 1):
+                cur = db.cursor()
+                cur.execute('insert into "likes" ("artID", "username", "likesNo.") VALUES(:1, :2, :3)', (i, u, l))
+                db.commit()
 
 
         formWindow.mainloop()
